@@ -21,9 +21,14 @@ jobs:
 
       - name: Fetch latest rates from Frankfurter (ECB)
         run: |
-          curl -sS "https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,CAD,AUD,CHF,JPY,BRL" -o rates.json
+          curl -fSL "https://api.frankfurter.dev/v1/latest?from=USD&to=EUR,GBP,CAD,AUD,CHF,JPY,BRL" -o rates.json
           echo "Fetched:"
           cat rates.json
+
+          # Garantisce che il file sia JSON valido con la chiave "rates"
+          # prima di committarlo: se l'API cambia di nuovo o va in errore,
+          # il job fallisce in modo visibile invece di pubblicare dati rotti.
+          jq -e '.rates' rates.json > /dev/null
 
       - name: Commit updated rates.json (if changed)
         run: |
